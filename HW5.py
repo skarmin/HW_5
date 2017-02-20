@@ -38,17 +38,6 @@ import twitter_info
 ## Get your secret values to authenticate to Twitter. You may replace each of these with variables rather than filling in the empty strings if you choose to do the secure way for 50 EC points
 
 
-
-#provided code
-# consumer_key = "" 
-# consumer_secret = ""
-# access_token = ""
-# access_token_secret = ""
-# ## Set up your authentication to Twitter
-# auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-# auth.set_access_token(access_token, access_token_secret)
-# api = tweepy.API(auth, parser=tweepy.parsers.JSONParser()) # Set up library to grab stuff from twitter with your authentication, and return it in a JSON-formatted way
-
 #Notes from lecture
 consumer_key = twitter_info.consumer_key
 consumer_secret = twitter_info.consumer_secret
@@ -59,9 +48,39 @@ auth.set_access_token(access_token, access_token_secret)
 
 # Set up library to grab stuff from twitter with your authentication, and return it in a JSON format 
 api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
-print (api)
-public_tweets = api.home_timeline() # One possible method! Check out: http://tweepy.readthedocs.io/en/v3.5.0/api.html#timeline-methods 
-print(type(public_tweets)," is the type of publictweets")
+# print (api)
+# public_tweets = api.home_timeline() # One possible method! Check out: http://tweepy.readthedocs.io/en/v3.5.0/api.html#timeline-methods 
+# print(type(public_tweets)," is the type of publictweets")
+
+CACHE_FNAME = "cached_data_twitter.json"
+try:
+	cache_file = open(CACHE_FNAME,'r')
+	cache_contents = cache_file.read()
+	CACHE_DICTION = json.loads(cache_contents)
+except:
+	CACHE_DICTION = {}
+
+
+user_input = str(input("Enter search phrase here: "))
+unique_identifier = "twitter_{}".format(user_input) # seestring formatting chapter
+# see if that user_input+twitter is in the cache diction!
+if unique_identifier in CACHE_DICTION: # if it is...
+	tweetgroup = CACHE_DICTION[unique_identifier] # grab the data from the cache!
+else:
+	tweetgroup = api.search(user_input)  #search for tweets by input
+	CACHE_DICTION[unique_identifier] = tweetgroup # add it to the dictionary -- new key-val pair
+	# and then write the whole cache dictionary, now with new info added, to the file, so it'll be there even after your program closes!
+	f = open(CACHE_FNAME,'w') # open the cache file for writing
+	f.write(json.dumps(CACHE_DICTION)) # make the whole dictionary holding data and unique identifiers into a json-formatted string, and write that wholllle string to a file so you'll have it next time!
+	f.close()
+tweet_words = []
+tweets = tweetgroup['statuses']
+for t in tweets:
+	tweet_words.append(t)
+for item in tweet_words[:3]:
+	print('TEXT:', item['text'])
+	print('CREATED AT:', item['created_at'], '\n')
+
 
 
 ## Write the rest of your code here!
