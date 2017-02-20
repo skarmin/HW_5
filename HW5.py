@@ -52,7 +52,13 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 # public_tweets = api.home_timeline() # One possible method! Check out: http://tweepy.readthedocs.io/en/v3.5.0/api.html#timeline-methods 
 # print(type(public_tweets)," is the type of publictweets")
 
-
+CACHE_FNAME = "cached_data_twitter.json"
+try:
+	cache_file = open(CACHE_FNAME,'r')
+	cache_contents = cache_file.read()
+	CACHE_DICTION = json.loads(cache_contents)
+except:
+	CACHE_DICTION = {}
 
 
 ## Write the rest of your code here!
